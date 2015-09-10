@@ -7,7 +7,7 @@ import (
 )
 
 const (
-    FieldsSeparator = "."
+	FieldsSeparator = "."
 )
 
 type Converter struct {
@@ -179,9 +179,7 @@ func (c *Converter) fill(out reflect.Value, in interface{}, path string) {
 		out.SetUint(ToUint64(in))
 
 	case reflect.Int:
-        if out.CanSet() {
-            out.Set(reflect.ValueOf(ToInt(in)))
-        }
+		out.Set(reflect.ValueOf(ToInt(in)))
 
 	case reflect.Int8:
 		out.Set(reflect.ValueOf(ToInt8(in)))
