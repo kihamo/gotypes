@@ -64,16 +64,21 @@ func (c *Converter) getPath(parentPath string, childPath string) string {
 
 func (c *Converter) getName(field reflect.StructField) string {
 	name := field.Tag.Get("json")
+
+	if name != "" {
+		name = strings.Replace(name, ",omitempty", "", 1)
+	}
+
 	if name == "" {
 		return field.Name
 	}
 
-	return strings.Replace(name, ",omitempty", "", 1)
+	return name
 }
 
 func (c *Converter) isZero(value reflect.Value) bool {
 	switch value.Kind() {
-	case reflect.Slice, reflect.Map:
+	case reflect.Chan, reflect.Func, reflect.Map, reflect.Ptr, reflect.Interface, reflect.Slice:
 		return value.IsNil()
 
 	case reflect.Struct:
@@ -84,7 +89,11 @@ func (c *Converter) isZero(value reflect.Value) bool {
 		return z
 	}
 
-	return reflect.Zero(value.Type()).Interface() == value.Interface()
+	if value.CanInterface() {
+		return reflect.Zero(value.Type()).Interface() == value.Interface()
+	}
+
+	return false
 }
 
 func (c *Converter) setZero(val reflect.Value, path string) {
@@ -191,7 +200,6 @@ func (c *Converter) fill(out reflect.Value, in interface{}, path string) {
 		out.Set(reflect.ValueOf(ToInt32(in)))
 
 	case reflect.Int64:
-		c.setZero(out, path)
 		out.SetInt(ToInt64(in))
 
 	case reflect.Float32:
