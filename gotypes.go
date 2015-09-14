@@ -107,16 +107,20 @@ func (c *Converter) fillOutput(output reflect.Value, input interface{}, path str
 		inputValue := reflect.ValueOf(input)
 		values := map[string]interface{}{}
 
-		switch inputValue.Kind() {
-		case reflect.Map:
-			for _, n := range inputValue.MapKeys() {
-				values[n.String()] = inputValue.MapIndex(n).Interface()
-			}
+		if input, ok := input.(map[string]interface{}); ok {
+			values = input
+		} else {
+			switch inputValue.Kind() {
+			case reflect.Map:
+				for _, n := range inputValue.MapKeys() {
+					values[n.String()] = inputValue.MapIndex(n).Interface()
+				}
 
-		case reflect.Struct:
-			for i := 0; i < inputValue.NumField(); i++ {
-				field := inputValue.Type().Field(i)
-				values[field.Name] = inputValue.FieldByName(field.Name).Interface()
+			case reflect.Struct:
+				for i := 0; i < inputValue.NumField(); i++ {
+					field := inputValue.Type().Field(i)
+					values[field.Name] = inputValue.FieldByName(field.Name).Interface()
+				}
 			}
 		}
 
@@ -158,16 +162,20 @@ func (c *Converter) fillOutput(output reflect.Value, input interface{}, path str
 		inputValue := reflect.ValueOf(input)
 		values := map[string]interface{}{}
 
-		switch inputValue.Kind() {
-		case reflect.Map:
-			for _, n := range inputValue.MapKeys() {
-				values[n.String()] = inputValue.MapIndex(n).Interface()
-			}
+		if input, ok := input.(map[string]interface{}); ok {
+			values = input
+		} else {
+			switch inputValue.Kind() {
+			case reflect.Map:
+				for _, n := range inputValue.MapKeys() {
+					values[n.String()] = inputValue.MapIndex(n).Interface()
+				}
 
-		case reflect.Struct:
-			for i := 0; i < inputValue.NumField(); i++ {
-				field := inputValue.Type().Field(i)
-				values[field.Name] = inputValue.FieldByName(field.Name).Interface()
+			case reflect.Struct:
+				for i := 0; i < inputValue.NumField(); i++ {
+					field := inputValue.Type().Field(i)
+					values[field.Name] = inputValue.FieldByName(field.Name).Interface()
+				}
 			}
 		}
 
