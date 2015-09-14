@@ -249,9 +249,10 @@ func (c *Converter) findAllowZeroFields(output reflect.Value, path string) {
 			c.allowZeroFields[path] = true
 		}
 
+        c.findAllowZeroFields(reflect.New(output.Type().Elem()).Elem(), path)
+
 	case reflect.Slice:
-		value := reflect.New(output.Type().Elem()).Elem()
-		c.findAllowZeroFields(value, c.getPath(path, "[]"))
+		c.findAllowZeroFields(reflect.New(output.Type().Elem()).Elem(), c.getPath(path, "[]"))
 
 	case reflect.Struct:
 		for i := 0; i < output.NumField(); i++ {
