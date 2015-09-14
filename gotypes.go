@@ -14,6 +14,7 @@ type Converter struct {
 	input           interface{}
 	output          interface{}
 	allowZeroFields map[string]bool
+	setValueFields  map[string]bool
 	invalidFields   []string
 	calculated      bool
 	validated       bool
@@ -24,6 +25,7 @@ func NewConverter(input interface{}, output interface{}) *Converter {
 		input:           input,
 		output:          output,
 		allowZeroFields: map[string]bool{},
+        setValueFields: map[string]bool{},
 		invalidFields:   []string{},
 	}
 }
@@ -192,45 +194,59 @@ func (c *Converter) fillOutput(output reflect.Value, input interface{}, path str
 		}
 
 	case reflect.Bool:
+		c.setValueFields[path] = true
 		output.SetBool(ToBool(input))
 
 	case reflect.String:
+		c.setValueFields[path] = true
 		output.SetString(ToString(input))
 
 	case reflect.Uint:
+		c.setValueFields[path] = true
 		output.Set(reflect.ValueOf(ToUint(input)))
 
 	case reflect.Uint8:
+		c.setValueFields[path] = true
 		output.Set(reflect.ValueOf(ToUint8(input)))
 
 	case reflect.Uint16:
+		c.setValueFields[path] = true
 		output.Set(reflect.ValueOf(ToUint16(input)))
 
 	case reflect.Uint32:
+		c.setValueFields[path] = true
 		output.Set(reflect.ValueOf(ToUint32(input)))
 
 	case reflect.Uint64:
+		c.setValueFields[path] = true
 		output.SetUint(ToUint64(input))
 
 	case reflect.Int:
+		c.setValueFields[path] = true
 		output.Set(reflect.ValueOf(ToInt(input)))
 
 	case reflect.Int8:
+		c.setValueFields[path] = true
 		output.Set(reflect.ValueOf(ToInt8(input)))
 
 	case reflect.Int16:
+		c.setValueFields[path] = true
 		output.Set(reflect.ValueOf(ToInt16(input)))
 
 	case reflect.Int32:
+		c.setValueFields[path] = true
 		output.Set(reflect.ValueOf(ToInt32(input)))
 
 	case reflect.Int64:
+		c.setValueFields[path] = true
 		output.SetInt(ToInt64(input))
 
 	case reflect.Float32:
+		c.setValueFields[path] = true
 		output.Set(reflect.ValueOf(ToFloat32(input)))
 
 	case reflect.Float64:
+		c.setValueFields[path] = true
 		output.SetFloat(ToFloat64(input))
 
 	}
@@ -249,7 +265,7 @@ func (c *Converter) findAllowZeroFields(output reflect.Value, path string) {
 			c.allowZeroFields[path] = true
 		}
 
-        c.findAllowZeroFields(reflect.New(output.Type().Elem()).Elem(), path)
+		c.findAllowZeroFields(reflect.New(output.Type().Elem()).Elem(), path)
 
 	case reflect.Slice:
 		c.findAllowZeroFields(reflect.New(output.Type().Elem()).Elem(), c.getPath(path, "[]"))
@@ -317,8 +333,10 @@ func (c *Converter) validate(output reflect.Value, path string, fieldPath string
 		valid = !output.IsNil()
 
 	default:
-		if !output.IsValid() || output.CanInterface() && reflect.Zero(output.Type()).Interface() == output.Interface() {
-			valid = false
+		valid = output.IsValid()
+
+		if valid && output.CanInterface() && reflect.Zero(output.Type()).Interface() == output.Interface() {
+			_, valid = c.setValueFields[path]
 		}
 	}
 
