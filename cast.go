@@ -1,8 +1,6 @@
 package gotypes
 
-import (
-	"strconv"
-)
+import "strconv"
 
 func ToBool(in interface{}) bool {
 	var castIn bool
@@ -11,10 +9,46 @@ func ToBool(in interface{}) bool {
 	case bool:
 		castIn = v
 
+	case []byte:
+		castIn = ToBool(string(v))
+
 	case string:
 		castIn = v != "" && v != "0" && v != "false"
 
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64:
+	case int:
+		castIn = v != 0
+
+	case int8:
+		castIn = v != 0
+
+	case int16:
+		castIn = v != 0
+
+	case int32:
+		castIn = v != 0
+
+	case int64:
+		castIn = v != 0
+
+	case uint:
+		castIn = v != 0
+
+	case uint8:
+		castIn = v != 0
+
+	case uint16:
+		castIn = v != 0
+
+	case uint32:
+		castIn = v != 0
+
+	case uint64:
+		castIn = v != 0
+
+	case float32:
+		castIn = v != 0
+
+	case float64:
 		castIn = v != 0
 	}
 

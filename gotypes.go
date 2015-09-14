@@ -30,6 +30,7 @@ func NewConverter(input interface{}, output interface{}) *Converter {
 
 func (c *Converter) Valid() bool {
 	if !c.validated {
+		c.calculation()
 		c.validate(reflect.ValueOf(c.output), "", "")
 		c.validated = true
 	}
