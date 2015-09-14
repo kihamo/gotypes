@@ -262,7 +262,6 @@ func (c *Converter) findAllowZeroFields(output reflect.Value, path string) {
 				parts := strings.Split(tag, ",")
 				if len(parts) > 1 && parts[1] == "omitempty" {
 					c.allowZeroFields[fieldPath] = true
-					continue
 				}
 			}
 
