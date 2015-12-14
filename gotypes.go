@@ -4,10 +4,15 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 )
 
 const (
 	FieldsSeparator = "."
+)
+
+var (
+	timeType = reflect.TypeOf(time.Time{})
 )
 
 type Converter struct {
@@ -25,7 +30,7 @@ func NewConverter(input interface{}, output interface{}) *Converter {
 		input:           input,
 		output:          output,
 		allowZeroFields: map[string]bool{},
-        setValueFields: map[string]bool{},
+		setValueFields:  map[string]bool{},
 		invalidFields:   []string{},
 	}
 }
@@ -162,6 +167,14 @@ func (c *Converter) fillOutput(output reflect.Value, input interface{}, path str
 		}
 
 	case reflect.Struct:
+		// Custom types
+		if output.Type() == timeType {
+			c.setValueFields[path] = true
+			output.Set(reflect.ValueOf(ToTime(input)))
+
+			break
+		}
+
 		inputValue := reflect.ValueOf(input)
 		values := map[string]interface{}{}
 
