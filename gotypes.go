@@ -175,12 +175,13 @@ func (c *Converter) fillOutput(output reflect.Value, input interface{}, path str
 			break
 		}
 
-		inputValue := reflect.ValueOf(input)
 		values := map[string]interface{}{}
 
 		if input, ok := input.(map[string]interface{}); ok {
 			values = input
 		} else {
+			inputValue := reflect.ValueOf(input)
+
 			switch inputValue.Kind() {
 			case reflect.Map:
 				for _, n := range inputValue.MapKeys() {
