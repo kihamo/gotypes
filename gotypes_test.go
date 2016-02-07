@@ -11,7 +11,15 @@ type TimeStruct struct {
 	Time time.Time
 }
 
-func Test_String_ToTime(t *testing.T) {
+type MapStruct struct {
+	StructField string
+}
+
+type MapStructWithOptionalFieldValue struct {
+	StructField string `json:",omitempty"`
+}
+
+func Test_StringToTime_ResultIsValid(t *testing.T) {
 	loc, _ := time.LoadLocation("Europe/Moscow")
 	outTime := time.Date(2015, time.December, 8, 23, 4, 2, 0, loc)
 
@@ -24,4 +32,46 @@ func Test_String_ToTime(t *testing.T) {
 	result := converter.GetOutput()
 
 	assert.Equal(t, result.(*TimeStruct).Time.String(), outTime.String())
+}
+
+func Test_MapMapsToMapStruct_ResultIsValid(t *testing.T) {
+	output := map[string]MapStruct{}
+	input := map[string]map[string]string{
+		"MapField": {
+			"StructField": "Value",
+		},
+	}
+
+	converter := NewConverter(input, &output)
+	valid := converter.Valid()
+
+	assert.True(t, valid)
+	assert.Equal(t, output["MapField"].StructField, "Value")
+}
+
+func Test_MapMapsWithEmptyFieldValueToMapStruct_ResultIsNotValid(t *testing.T) {
+	output := map[string]MapStruct{}
+	input := map[string]map[string]string{
+		"MapField": {},
+	}
+
+	converter := NewConverter(input, &output)
+	valid := converter.Valid()
+
+	assert.False(t, valid)
+	assert.Equal(t, converter.GetInvalidFields()[0], "{\"MapField\"}.StructField")
+	assert.Equal(t, output["MapField"].StructField, "")
+}
+
+func Test_MapMapsToMapStructWithOptionalFieldValue_ResultIsValid(t *testing.T) {
+	output := map[string]MapStructWithOptionalFieldValue{}
+	input := map[string]map[string]string{
+		"MapField": {},
+	}
+
+	converter := NewConverter(input, &output)
+	valid := converter.Valid()
+
+	assert.True(t, valid)
+	assert.Equal(t, output["MapField"].StructField, "")
 }

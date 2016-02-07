@@ -3,6 +3,7 @@ package gotypes
 import (
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -16,22 +17,24 @@ var (
 )
 
 type Converter struct {
-	input           interface{}
-	output          interface{}
-	allowZeroFields map[string]bool
-	setValueFields  map[string]bool
-	invalidFields   []string
-	calculated      bool
-	validated       bool
+	input                 interface{}
+	output                interface{}
+	allowZeroFields       map[string]bool
+	allowZeroFieldsByMask []*regexp.Regexp
+	setValueFields        map[string]bool
+	invalidFields         []string
+	calculated            bool
+	validated             bool
 }
 
 func NewConverter(input interface{}, output interface{}) *Converter {
 	return &Converter{
-		input:           input,
-		output:          output,
-		allowZeroFields: map[string]bool{},
-		setValueFields:  map[string]bool{},
-		invalidFields:   []string{},
+		input:                 input,
+		output:                output,
+		allowZeroFields:       map[string]bool{},
+		allowZeroFieldsByMask: []*regexp.Regexp{},
+		setValueFields:        map[string]bool{},
+		invalidFields:         []string{},
 	}
 }
 
@@ -266,17 +269,33 @@ func (c *Converter) fillOutput(output reflect.Value, input interface{}, path str
 	}
 }
 
+func (c *Converter) setAllowZeroFieldsPath(path string) {
+	if strings.Contains(path, "{*}") {
+		path = regexp.QuoteMeta(path)
+		path = strings.Replace(path, `\{\*\}`, `\{.*?\}`, -1)
+
+		re := regexp.MustCompile("^" + path + "$")
+		c.allowZeroFieldsByMask = append(c.allowZeroFieldsByMask, re)
+	} else {
+		c.allowZeroFields[path] = true
+	}
+}
+
 func (c *Converter) findAllowZeroFields(output reflect.Value, path string) {
 	switch output.Kind() {
 
 	case reflect.Map:
-		for _, n := range output.MapKeys() {
-			c.findAllowZeroFields(output.MapIndex(n), c.getPath(path, fmt.Sprintf("[%q]", n.String())))
+		if len(output.MapKeys()) > 0 {
+			for _, n := range output.MapKeys() {
+				c.findAllowZeroFields(output.MapIndex(n), c.getPath(path, fmt.Sprintf("{%q}", n.String())))
+			}
+		} else {
+			c.findAllowZeroFields(reflect.New(output.Type().Elem()).Elem(), c.getPath(path, "{*}"))
 		}
 
 	case reflect.Ptr:
 		if path != "" {
-			c.allowZeroFields[path] = true
+			c.setAllowZeroFieldsPath(path)
 		}
 
 		c.findAllowZeroFields(reflect.New(output.Type().Elem()).Elem(), path)
@@ -293,7 +312,7 @@ func (c *Converter) findAllowZeroFields(output reflect.Value, path string) {
 			if tag != "" {
 				parts := strings.Split(tag, ",")
 				if len(parts) > 1 && parts[1] == "omitempty" {
-					c.allowZeroFields[fieldPath] = true
+					c.setAllowZeroFieldsPath(fieldPath)
 				}
 			}
 
@@ -336,8 +355,8 @@ func (c *Converter) validate(output reflect.Value, path string, fieldPath string
 
 		if valid {
 			for _, n := range output.MapKeys() {
-				subPath := c.getPath(path, fmt.Sprintf("[%q]", n.String()))
-				subFieldPath := c.getPath(fieldPath, fmt.Sprintf("[%q]", n.String()))
+				subPath := c.getPath(path, fmt.Sprintf("{%q}", n.String()))
+				subFieldPath := c.getPath(fieldPath, fmt.Sprintf("{%q}", n.String()))
 
 				c.validate(output.MapIndex(n), subPath, subFieldPath)
 			}
@@ -355,7 +374,17 @@ func (c *Converter) validate(output reflect.Value, path string, fieldPath string
 	}
 
 	if !valid && path != "" {
-		if _, ok := c.allowZeroFields[path]; !ok {
+		_, valid = c.allowZeroFields[path]
+
+		if !valid && len(c.allowZeroFieldsByMask) > 0 {
+			for _, re := range c.allowZeroFieldsByMask {
+				if valid = re.MatchString(path); valid {
+					break
+				}
+			}
+		}
+
+		if !valid {
 			c.invalidFields = append(c.invalidFields, fieldPath)
 		}
 	}
