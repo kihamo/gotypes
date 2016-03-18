@@ -20,12 +20,11 @@ type MapStructWithOptionalFieldValue struct {
 }
 
 func Test_StringToTimeWithDateInRFC3339_ResultIsValid(t *testing.T) {
-	loc, _ := time.LoadLocation("Europe/Moscow")
-	outTime := time.Date(2015, time.December, 8, 23, 4, 2, 0, loc)
+	outTime := time.Date(2015, time.December, 8, 23, 4, 2, 0, time.FixedZone("", 4*60*60))
 
 	output := TimeStruct{}
 	input := map[string]interface{}{
-		"Time": "2015-12-08T23:04:02+03:00",
+		"Time": "2015-12-08T23:04:02+04:00",
 	}
 
 	converter := NewConverter(input, &output)
