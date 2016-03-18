@@ -7,11 +7,8 @@ go:
   - 1.6
   - tip
 
-env:
-  - tz="Europe/Moscow"
-  - ZONEINFO=$GOROOT/lib/time/zoneinfo.zip
-
 before_install:
+  - export ZONEINFO=$GOROOT/lib/time/zoneinfo.zip
   - go get github.com/axw/gocov/gocov
   - go get github.com/mattn/goveralls
   - if ! go get github.com/golang/tools/cmd/cover; then go get golang.org/x/tools/cmd/cover; fi
@@ -22,3 +19,4 @@ install:
 script:
   - go test -v ./...
   - $HOME/gopath/bin/goveralls -service=travis-ci
+  - echo $ZONEINFO
