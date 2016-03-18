@@ -5,9 +5,13 @@ import (
 )
 
 func ToTime(in interface{}) (t time.Time) {
-	switch v := in.(type) {
-	default:
-		t, _ = time.Parse(time.RFC3339, ToString(v))
+	var err error
+	v := ToString(in)
+
+	t, err = time.Parse(time.RFC3339, v)
+
+	if err != nil {
+		t, err = time.Parse("02.01.2006 15:04:05", v)
 	}
 
 	return t

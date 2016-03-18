@@ -19,13 +19,27 @@ type MapStructWithOptionalFieldValue struct {
 	StructField string `json:",omitempty"`
 }
 
-func Test_StringToTime_ResultIsValid(t *testing.T) {
+func Test_StringToTimeWithDateInRFC3339_ResultIsValid(t *testing.T) {
 	loc, _ := time.LoadLocation("Europe/Moscow")
 	outTime := time.Date(2015, time.December, 8, 23, 4, 2, 0, loc)
 
 	output := TimeStruct{}
 	input := map[string]interface{}{
 		"Time": "2015-12-08T23:04:02+03:00",
+	}
+
+	converter := NewConverter(input, &output)
+	result := converter.GetOutput()
+
+	assert.Equal(t, result.(*TimeStruct).Time.String(), outTime.String())
+}
+
+func Test_StringToTime_ResultIsValid(t *testing.T) {
+	outTime := time.Date(2016, time.August, 19, 18, 55, 0, 0, time.UTC)
+
+	output := TimeStruct{}
+	input := map[string]interface{}{
+		"Time": "19.08.2016 18:55:00",
 	}
 
 	converter := NewConverter(input, &output)
