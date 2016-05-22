@@ -88,3 +88,26 @@ func Test_MapMapsToMapStructWithOptionalFieldValue_ResultIsValid(t *testing.T) {
 	assert.True(t, valid)
 	assert.Equal(t, output["MapField"].StructField, "")
 }
+
+func Test_SliceBoolInInterfaceToSliceBool_ResultIsValid(t *testing.T) {
+	output := []bool{}
+	input := []interface{}{
+		false,
+		"0",
+		"false",
+		true,
+		"1",
+		"true",
+	}
+
+	converter := NewConverter(input, &output)
+	valid := converter.Valid()
+
+	assert.True(t, valid)
+	assert.False(t, output[0])
+	assert.False(t, output[1])
+	assert.False(t, output[2])
+	assert.True(t, output[3])
+	assert.True(t, output[4])
+	assert.True(t, output[5])
+}

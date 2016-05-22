@@ -369,7 +369,7 @@ func (c *Converter) validate(output reflect.Value, path string, fieldPath string
 		valid = output.IsValid()
 
 		if valid && output.CanInterface() && reflect.Zero(output.Type()).Interface() == output.Interface() {
-			_, valid = c.setValueFields[path]
+			_, valid = c.setValueFields[fieldPath]
 		}
 	}
 
