@@ -1,5 +1,7 @@
 package gotypes
 
+//go:generate goimports -w ./
+
 import (
 	"fmt"
 	"reflect"
@@ -148,7 +150,7 @@ func (c *Converter) fillOutput(output reflect.Value, input interface{}, path str
 
 				if valueType.Kind() != reflect.Interface {
 					value = reflect.New(valueType).Elem()
-					childPath := c.getPath(path, fmt.Sprintf("[%q]", i))
+					childPath := c.getPath(path, fmt.Sprintf("{%q}", i))
 					c.fillOutput(value, values[i], childPath)
 				} else {
 					value = reflect.ValueOf(values[i])

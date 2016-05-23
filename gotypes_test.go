@@ -111,3 +111,26 @@ func Test_SliceBoolInInterfaceToSliceBool_ResultIsValid(t *testing.T) {
 	assert.True(t, output[4])
 	assert.True(t, output[5])
 }
+
+func Test_MapStringInterfaceToMapStringBool_ResultIsValid(t *testing.T) {
+	output := map[string]bool{}
+	input := map[string]interface{}{
+		"OneFalse":  false,
+		"TwoFalse":  "0",
+		"TreeFalse": "false",
+		"OneTrue":   true,
+		"TwoTrue":   "1",
+		"TreeTrue":  "true",
+	}
+
+	converter := NewConverter(input, &output)
+	valid := converter.Valid()
+
+	assert.True(t, valid)
+	assert.False(t, output["OneFalse"])
+	assert.False(t, output["TwoFalse"])
+	assert.False(t, output["TreeFalse"])
+	assert.True(t, output["OneTrue"])
+	assert.True(t, output["TwoTrue"])
+	assert.True(t, output["TreeTrue"])
+}
