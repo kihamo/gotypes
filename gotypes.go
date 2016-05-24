@@ -132,7 +132,7 @@ func (c *Converter) fillOutput(output reflect.Value, input interface{}, path str
 			case reflect.Struct:
 				for i := 0; i < inputValue.NumField(); i++ {
 					field := inputValue.Type().Field(i)
-					values[field.Name] = inputValue.FieldByName(field.Name).Interface()
+					values[c.getName(field)] = inputValue.FieldByName(field.Name).Interface()
 				}
 			}
 		}

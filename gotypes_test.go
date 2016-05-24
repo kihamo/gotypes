@@ -19,6 +19,10 @@ type MapStructWithOptionalFieldValue struct {
 	StructField string `json:",omitempty"`
 }
 
+type MapStructWithJsonTagForField struct {
+	StructField string `json:"field"`
+}
+
 func Test_StringToTimeWithDateInRFC3339_ResultIsValid(t *testing.T) {
 	outTime := time.Date(2015, time.December, 8, 23, 4, 2, 0, time.FixedZone("", 4*60*60))
 
@@ -133,4 +137,30 @@ func Test_MapStringInterfaceToMapStringBool_ResultIsValid(t *testing.T) {
 	assert.True(t, output["OneTrue"])
 	assert.True(t, output["TwoTrue"])
 	assert.True(t, output["TreeTrue"])
+}
+
+func Test_StructToMapStringInterface_ResultIsValid(t *testing.T) {
+	output := map[string]interface{}{}
+	input := MapStruct{
+		StructField: "test",
+	}
+
+	converter := NewConverter(input, &output)
+	valid := converter.Valid()
+
+	assert.True(t, valid)
+	assert.Equal(t, output["StructField"], "test")
+}
+
+func Test_StructWithJsonTagToMapStringInterface_ResultIsValid(t *testing.T) {
+	output := map[string]interface{}{}
+	input := MapStructWithJsonTagForField{
+		StructField: "test",
+	}
+
+	converter := NewConverter(input, &output)
+	valid := converter.Valid()
+
+	assert.True(t, valid)
+	assert.Equal(t, output["field"], "test")
 }
