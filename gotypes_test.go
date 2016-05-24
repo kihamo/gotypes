@@ -152,6 +152,19 @@ func Test_StructToMapStringInterface_ResultIsValid(t *testing.T) {
 	assert.Equal(t, output["StructField"], "test")
 }
 
+func Test_StructByPointerToMapStringInterface_ResultIsValid(t *testing.T) {
+	output := map[string]interface{}{}
+	input := MapStruct{
+		StructField: "test",
+	}
+
+	converter := NewConverter(&input, &output)
+	valid := converter.Valid()
+
+	assert.True(t, valid)
+	assert.Equal(t, output["StructField"], "test")
+}
+
 func Test_StructWithJsonTagToMapStringInterface_ResultIsValid(t *testing.T) {
 	output := map[string]interface{}{}
 	input := MapStructWithJsonTagForField{

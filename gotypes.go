@@ -94,10 +94,11 @@ func (c *Converter) calculation() {
 		return
 	}
 
-	value := reflect.Indirect(reflect.ValueOf(c.output))
+	in := reflect.Indirect(reflect.ValueOf(c.input)).Interface()
+	out := reflect.Indirect(reflect.ValueOf(c.output))
 
-	c.findAllowZeroFields(value, "")
-	c.fillOutput(value, c.input, "")
+	c.findAllowZeroFields(out, "")
+	c.fillOutput(out, in, "")
 	c.calculated = true
 }
 
