@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -25,8 +26,8 @@ type Converter struct {
 	allowZeroFieldsByMask []*regexp.Regexp
 	setValueFields        map[string]bool
 	invalidFields         []string
-	calculated            bool
-	validated             bool
+	calculateOnce         sync.Once
+	validateOnce          sync.Once
 }
 
 func NewConverter(input interface{}, output interface{}) *Converter {
@@ -41,18 +42,14 @@ func NewConverter(input interface{}, output interface{}) *Converter {
 }
 
 func (c *Converter) Valid() bool {
-	if !c.validated {
-		c.calculation()
-		c.validate(reflect.ValueOf(c.output), "", "")
-		c.validated = true
-	}
+	c.calculateOnce.Do(c.calculation)
+	c.validateOnce.Do(c.validate)
 
 	return len(c.invalidFields) == 0
 }
 
 func (c *Converter) GetInvalidFields() []string {
-	c.calculation()
-
+	c.calculateOnce.Do(c.calculation)
 	return c.invalidFields
 }
 
@@ -61,8 +58,7 @@ func (c *Converter) GetInput() interface{} {
 }
 
 func (c *Converter) GetOutput() interface{} {
-	c.calculation()
-
+	c.calculateOnce.Do(c.calculation)
 	return c.output
 }
 
@@ -90,16 +86,11 @@ func (c *Converter) getName(field reflect.StructField) string {
 }
 
 func (c *Converter) calculation() {
-	if c.calculated {
-		return
-	}
-
 	in := reflect.Indirect(reflect.ValueOf(c.input)).Interface()
 	out := reflect.Indirect(reflect.ValueOf(c.output))
 
 	c.findAllowZeroFields(out, "")
 	c.fillOutput(out, in, "")
-	c.calculated = true
 }
 
 func (c *Converter) fillOutput(output reflect.Value, input interface{}, path string) {
@@ -325,7 +316,11 @@ func (c *Converter) findAllowZeroFields(output reflect.Value, path string) {
 	}
 }
 
-func (c *Converter) validate(output reflect.Value, path string, fieldPath string) {
+func (c *Converter) validate() {
+	c.validateExec(reflect.ValueOf(c.output), "", "")
+}
+
+func (c *Converter) validateExec(output reflect.Value, path string, fieldPath string) {
 	output = reflect.Indirect(output)
 	valid := true
 
@@ -338,7 +333,7 @@ func (c *Converter) validate(output reflect.Value, path string, fieldPath string
 			subPath := c.getPath(path, c.getName(field))
 			subFieldPath := c.getPath(fieldPath, c.getName(field))
 
-			c.validate(val, subPath, subFieldPath)
+			c.validateExec(val, subPath, subFieldPath)
 		}
 
 	case reflect.Slice:
@@ -349,7 +344,7 @@ func (c *Converter) validate(output reflect.Value, path string, fieldPath string
 				subPath := c.getPath(path, "[]")
 				subFieldPath := c.getPath(fieldPath, fmt.Sprintf("[%d]", i))
 
-				c.validate(output.Index(i), subPath, subFieldPath)
+				c.validateExec(output.Index(i), subPath, subFieldPath)
 			}
 		}
 
@@ -361,7 +356,7 @@ func (c *Converter) validate(output reflect.Value, path string, fieldPath string
 				subPath := c.getPath(path, fmt.Sprintf("{%q}", n.String()))
 				subFieldPath := c.getPath(fieldPath, fmt.Sprintf("{%q}", n.String()))
 
-				c.validate(output.MapIndex(n), subPath, subFieldPath)
+				c.validateExec(output.MapIndex(n), subPath, subFieldPath)
 			}
 		}
 
