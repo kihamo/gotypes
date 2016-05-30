@@ -72,6 +72,10 @@ func (c *Converter) getPath(parentPath string, childPath string) string {
 }
 
 func (c *Converter) getName(field reflect.StructField) string {
+	if c.isIgnoreField(field) {
+		return field.Name
+	}
+
 	name := field.Tag.Get("json")
 
 	if name != "" {
@@ -83,6 +87,16 @@ func (c *Converter) getName(field reflect.StructField) string {
 	}
 
 	return name
+}
+
+func (c *Converter) isIgnoreField(field reflect.StructField) bool {
+	tag := field.Tag.Get("json")
+	if tag == "" {
+		return false
+	}
+
+	parts := strings.Split(tag, ",")
+	return len(parts) >= 1 && parts[0] == "-"
 }
 
 func (c *Converter) calculation() {
@@ -195,6 +209,10 @@ func (c *Converter) fillOutput(output reflect.Value, input interface{}, path str
 
 		if len(values) > 0 {
 			for i := 0; i < output.NumField(); i++ {
+				if c.isIgnoreField(output.Type().Field(i)) {
+					continue
+				}
+
 				name := c.getName(output.Type().Field(i))
 				childPath := c.getPath(path, name)
 
@@ -302,11 +320,15 @@ func (c *Converter) findAllowZeroFields(output reflect.Value, path string) {
 			field := output.Type().Field(i)
 			fieldPath := c.getPath(path, c.getName(field))
 
-			tag := field.Tag.Get("json")
-			if tag != "" {
-				parts := strings.Split(tag, ",")
-				if len(parts) > 1 && parts[1] == "omitempty" {
-					c.setAllowZeroFieldsPath(fieldPath)
+			if c.isIgnoreField(field) {
+				c.setAllowZeroFieldsPath(fieldPath)
+			} else {
+				tag := field.Tag.Get("json")
+				if tag != "" {
+					parts := strings.Split(tag, ",")
+					if len(parts) > 1 && parts[1] == "omitempty" {
+						c.setAllowZeroFieldsPath(fieldPath)
+					}
 				}
 			}
 

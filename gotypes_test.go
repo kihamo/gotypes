@@ -23,6 +23,10 @@ type MapStructWithJsonTagForField struct {
 	StructField string `json:"field"`
 }
 
+type MapStructWithJsonTagSkip struct {
+	StructField string `json:"-"`
+}
+
 func Test_StringToTimeWithDateInRFC3339_ResultIsValid(t *testing.T) {
 	outTime := time.Date(2015, time.December, 8, 23, 4, 2, 0, time.FixedZone("", 4*60*60))
 
@@ -91,6 +95,19 @@ func Test_MapMapsToMapStructWithOptionalFieldValue_ResultIsValid(t *testing.T) {
 
 	assert.True(t, valid)
 	assert.Equal(t, output["MapField"].StructField, "")
+}
+
+func Test_MapToStructWithJsonSkipField_ResultIsValid(t *testing.T) {
+	output := MapStructWithJsonTagSkip{}
+	input := map[string]string{
+		"StructField": "testValue",
+	}
+
+	converter := NewConverter(input, &output)
+	valid := converter.Valid()
+
+	assert.True(t, valid)
+	assert.Equal(t, output.StructField, "")
 }
 
 func Test_SliceBoolInInterfaceToSliceBool_ResultIsValid(t *testing.T) {
