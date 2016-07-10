@@ -1,6 +1,9 @@
 package gotypes
 
-import "strconv"
+import (
+	"reflect"
+	"strconv"
+)
 
 func ToBool(in interface{}) bool {
 	var castIn bool
@@ -50,6 +53,11 @@ func ToBool(in interface{}) bool {
 
 	case float64:
 		castIn = v != 0
+
+	default:
+		if reflect.ValueOf(v).Kind() == reflect.Ptr {
+			return ToBool(reflect.Indirect(reflect.ValueOf(v)).Interface())
+		}
 	}
 
 	return castIn
@@ -107,6 +115,8 @@ func ToString(in interface{}) string {
 	default:
 		if cast, ok := in.(string); ok {
 			castIn = cast
+		} else if reflect.ValueOf(v).Kind() == reflect.Ptr {
+			return ToString(reflect.Indirect(reflect.ValueOf(v)).Interface())
 		}
 	}
 
@@ -179,6 +189,11 @@ func ToUint64(in interface{}) uint64 {
 
 	case float64:
 		castIn = uint64(v)
+
+	default:
+		if reflect.ValueOf(v).Kind() == reflect.Ptr {
+			return ToUint64(reflect.Indirect(reflect.ValueOf(v)).Interface())
+		}
 	}
 
 	return castIn
@@ -251,6 +266,11 @@ func ToInt64(in interface{}) int64 {
 
 	case float64:
 		castIn = int64(v)
+
+	default:
+		if reflect.ValueOf(v).Kind() == reflect.Ptr {
+			return ToInt64(reflect.Indirect(reflect.ValueOf(v)).Interface())
+		}
 	}
 
 	return castIn
@@ -310,6 +330,11 @@ func ToFloat64(in interface{}) float64 {
 
 	case float32:
 		castIn = float64(v)
+
+	default:
+		if reflect.ValueOf(v).Kind() == reflect.Ptr {
+			return ToFloat64(reflect.Indirect(reflect.ValueOf(v)).Interface())
+		}
 	}
 
 	return castIn

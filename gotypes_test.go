@@ -11,6 +11,10 @@ type TimeStruct struct {
 	Time time.Time
 }
 
+type TimePointerStruct struct {
+	Time *time.Time
+}
+
 type MapStruct struct {
 	StructField string
 }
@@ -53,6 +57,20 @@ func Test_StringToTime_ResultIsValid(t *testing.T) {
 	result := converter.GetOutput()
 
 	assert.Equal(t, result.(*TimeStruct).Time.String(), outTime.String())
+}
+
+func Test_StringToTimeByPointer_ResultIsValid(t *testing.T) {
+	outTime := time.Date(2015, time.December, 8, 23, 4, 2, 0, time.FixedZone("", 4*60*60))
+
+	output := TimePointerStruct{}
+	input := map[string]interface{}{
+		"Time": "2015-12-08T23:04:02+04:00",
+	}
+
+	converter := NewConverter(input, &output)
+	result := converter.GetOutput()
+
+	assert.Equal(t, result.(*TimePointerStruct).Time.String(), outTime.String())
 }
 
 func Test_MapMapsToMapStruct_ResultIsValid(t *testing.T) {

@@ -82,6 +82,16 @@ func Test_FloatOne_ToBoolTrue(t *testing.T) {
 	assert.True(t, result)
 }
 
+func Test_StringPointerInterface_ToBoolTrue(t *testing.T) {
+	var val interface{}
+	valTrue := "1"
+	val = &valTrue
+
+	result := ToBool(val)
+
+	assert.True(t, result)
+}
+
 //
 // ToString
 //
@@ -224,6 +234,16 @@ func Test_Interface_ToString(t *testing.T) {
 
 func Test_Bytes_ToString(t *testing.T) {
 	val := []byte("1")
+
+	result := ToString(val)
+
+	assert.Equal(t, "1", result)
+}
+
+func Test_IntegerPointerInterface_ToString(t *testing.T) {
+	var val interface{}
+	valTrue := 1
+	val = &valTrue
 
 	result := ToString(val)
 
@@ -386,12 +406,32 @@ func Test_Float64_ToInt(t *testing.T) {
 	assert.Exactly(t, result, 1)
 }
 
+func Test_StringPointerInterface_ToInt(t *testing.T) {
+	var val interface{}
+	valTrue := "1"
+	val = &valTrue
+
+	result := ToInt(val)
+
+	assert.Exactly(t, result, 1)
+}
+
 //
 // ToInt8
 //
 
 func Test_BoolTrue_ToInt8(t *testing.T) {
 	val := true
+
+	result := ToInt8(val)
+
+	assert.Exactly(t, result, int8(1))
+}
+
+func Test_StringPointerInterface_ToInt8(t *testing.T) {
+	var val interface{}
+	valTrue := "1"
+	val = &valTrue
 
 	result := ToInt8(val)
 
@@ -410,12 +450,32 @@ func Test_BoolTrue_ToInt16(t *testing.T) {
 	assert.Exactly(t, result, int16(1))
 }
 
+func Test_StringPointerInterface_ToInt16(t *testing.T) {
+	var val interface{}
+	valTrue := "1"
+	val = &valTrue
+
+	result := ToInt16(val)
+
+	assert.Exactly(t, result, int16(1))
+}
+
 //
 // ToInt32
 //
 
 func Test_BoolTrue_ToInt32(t *testing.T) {
 	val := true
+
+	result := ToInt32(val)
+
+	assert.Exactly(t, result, int32(1))
+}
+
+func Test_StringPointerInterface_ToInt32(t *testing.T) {
+	var val interface{}
+	valTrue := "1"
+	val = &valTrue
 
 	result := ToInt32(val)
 
@@ -578,12 +638,32 @@ func Test_Float64_ToUint(t *testing.T) {
 	assert.Exactly(t, result, uint(1))
 }
 
+func Test_StringPointerInterface_ToUint(t *testing.T) {
+	var val interface{}
+	valTrue := "1"
+	val = &valTrue
+
+	result := ToUint(val)
+
+	assert.Exactly(t, result, uint(1))
+}
+
 //
 // ToUint8
 //
 
 func Test_BoolTrue_ToUint8(t *testing.T) {
 	val := true
+
+	result := ToUint8(val)
+
+	assert.Exactly(t, result, uint8(1))
+}
+
+func Test_StringPointerInterface_ToUint8(t *testing.T) {
+	var val interface{}
+	valTrue := "1"
+	val = &valTrue
 
 	result := ToUint8(val)
 
@@ -602,12 +682,32 @@ func Test_BoolTrue_ToUint16(t *testing.T) {
 	assert.Exactly(t, result, uint16(1))
 }
 
+func Test_StringPointerInterface_ToUint16(t *testing.T) {
+	var val interface{}
+	valTrue := "1"
+	val = &valTrue
+
+	result := ToUint16(val)
+
+	assert.Exactly(t, result, uint16(1))
+}
+
 //
 // ToUint32
 //
 
 func Test_BoolTrue_ToUint32(t *testing.T) {
 	val := true
+
+	result := ToUint32(val)
+
+	assert.Exactly(t, result, uint32(1))
+}
+
+func Test_StringPointerInterface_ToUint32(t *testing.T) {
+	var val interface{}
+	valTrue := "1"
+	val = &valTrue
 
 	result := ToUint32(val)
 
@@ -764,6 +864,16 @@ func Test_Float32_ToFloat32(t *testing.T) {
 
 func Test_Float64_ToFloat32(t *testing.T) {
 	val := float64(1.2)
+
+	result := ToFloat32(val)
+
+	assert.Exactly(t, result, float32(1.2))
+}
+
+func Test_StringPointerInterface_ToFloat32(t *testing.T) {
+	var val interface{}
+	valTrue := "1.2"
+	val = &valTrue
 
 	result := ToFloat32(val)
 
