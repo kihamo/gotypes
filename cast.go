@@ -56,14 +56,6 @@ func ToBool(in interface{}) bool {
 		castIn = v != 0
 
 	default:
-		if stringer, ok := v.(fmt.Stringer); ok {
-			return stringer.String()
-		}
-
-		if stringer, ok := v.(fmt.GoStringer); ok {
-			return stringer.GoString()
-		}
-
 		if reflect.ValueOf(v).Kind() == reflect.Ptr {
 			return ToBool(reflect.Indirect(reflect.ValueOf(v)).Interface())
 		}
@@ -122,6 +114,14 @@ func ToString(in interface{}) string {
 		castIn = strconv.FormatFloat(v, 'f', 6, 64)
 
 	default:
+		if stringer, ok := v.(fmt.Stringer); ok {
+			return stringer.String()
+		}
+
+		if stringer, ok := v.(fmt.GoStringer); ok {
+			return stringer.GoString()
+		}
+
 		if cast, ok := in.(string); ok {
 			castIn = cast
 		} else if reflect.ValueOf(v).Kind() == reflect.Ptr {
