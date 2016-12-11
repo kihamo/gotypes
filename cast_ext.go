@@ -16,3 +16,9 @@ func ToTime(in interface{}) (t time.Time) {
 
 	return t
 }
+
+func ToDuration(in interface{}) (d time.Duration) {
+	d, _ = time.ParseDuration(ToString(in))
+
+	return d
+}

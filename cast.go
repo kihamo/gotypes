@@ -1,6 +1,7 @@
 package gotypes
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 )
@@ -55,6 +56,14 @@ func ToBool(in interface{}) bool {
 		castIn = v != 0
 
 	default:
+		if stringer, ok := v.(fmt.Stringer); ok {
+			return stringer.String()
+		}
+
+		if stringer, ok := v.(fmt.GoStringer); ok {
+			return stringer.GoString()
+		}
+
 		if reflect.ValueOf(v).Kind() == reflect.Ptr {
 			return ToBool(reflect.Indirect(reflect.ValueOf(v)).Interface())
 		}
