@@ -7,7 +7,10 @@ import (
 )
 
 func ToBool(in interface{}) bool {
-	var castIn bool
+	var (
+		castIn bool
+		err    error
+	)
 
 	switch v := in.(type) {
 	case bool:
@@ -17,7 +20,11 @@ func ToBool(in interface{}) bool {
 		castIn = ToBool(string(v))
 
 	case string:
-		castIn = v != "" && v != "0" && v != "false"
+		castIn, err = strconv.ParseBool(v)
+
+		if err != nil && v != "" {
+			castIn = true
+		}
 
 	case int:
 		castIn = v != 0
